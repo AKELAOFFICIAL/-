@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>𝗔𝗞𝗘𝗟𝗔 𝗔𝗜 𝗨𝗟𝗧𝗥𝗔 - Live Predictor</title>
+  <link href="https://fonts.googleapis.com/css2?family=El+Messiri&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #1e3c72, #2a5298);
+      --card-glass: rgba(255,255,255,0.06);
+      --highlight: #00e5ff;
+      --primary: #007bff;
+      --secondary-color: #00ffbf;
+      --tertiary-color: #66ff66;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --white: #ffffff;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'El Messiri', sans-serif;
+      font-weight: normal;
+    }
+    body {
+      background: var(--bg-gradient);
+      color: var(--white);
+      padding: 20px;
+    }
+    .page-title {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    svg text {
+      font-family: 'El Messiri', sans-serif;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      text-transform: uppercase;
+      animation: stroke 5s infinite alternate;
+      stroke-width: 1;
+      stroke: var(--primary-color);
+      font-size: 80px;
+      fill: rgba(255, 255, 255, 0);
+      font-weight: normal;
+    }
+    @keyframes stroke {
+      0% { fill: rgba(255, 255, 255, 0); stroke: var(--primary); stroke-dashoffset: 25%; stroke-dasharray: 0 50%; stroke-width: 2; }
+      70% { fill: rgba(255, 255, 255, 0); stroke: var(--secondary-color); }
+      80% { fill: rgba(255, 255, 255, 0); stroke: var(--tertiary-color); stroke-width: 3; }
+      100% { fill: #FFFFFF; stroke: rgba(0, 0, 0, 0); stroke-dashoffset: -25%; stroke-dasharray: 50% 0; stroke-width: 0; }
+    }
+    .glass {
+      background: var(--card-glass);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    h2 {
+      font-size: 22px;
+      margin-bottom: 16px;
+      text-align: center;
+      color: var(--highlight);
+      font-weight: normal;
+    }
+    .stats, .prediction {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+    .box {
+      flex: 1 1 140px;
+      padding: 18px;
+      border-radius: 14px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--secondary-color);
+      box-shadow: 0 4px 12px rgba(0, 255, 191, 0.2);
+    }
+    .label {
+      font-size: 14px;
+      color: #ccc;
+      font-weight: normal;
+    }
+    .value {
+      font-size: 20px;
+      margin-top: 8px;
+      animation: pulse 2s infinite;
+      font-weight: normal;
+    }
+    .green { color: var(--success); }
+    .red { color: var(--danger); }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.85; }
+    }
+    .prediction .box {
+      background: rgba(0, 255, 200, 0.08);
+      border-color: var(--highlight);
+      transition: 0.3s;
+    }
+    .prediction .box:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 15px rgba(0,198,255,0.4);
+    }
+    .prediction .value {
+      font-size: 26px;
+      font-weight: normal;
+    }
+    .confidence-bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 8px;
+      box-shadow: inset 0 0 5px rgba(0,198,255,0.5);
+    }
+    .confidence-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00c6ff, #2ecc71);
+      border-radius: 8px;
+      transition: width 0.4s ease-in-out;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.05);
+      padding: 14px;
+      border-left: 4px solid;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: normal;
+    }
+    .history-item small {
+      opacity: 0.7;
+      font-size: 12px;
+    }
+    .history-item-content {
+      flex: 1;
+      font-weight: normal;
+    }
+    .delete-icon {
+      color: #e74c3c;
+      cursor: pointer;
+      margin-left: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .no-history {
+      text-align: center;
+      color: #999;
+      margin-top: 16px;
+    }
+    footer {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 40px;
+      color: #aaa;
+    }
+    .lucide {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    .pattern-info {
+      font-size: 12px;
+      margin-top: 6px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-title">
+    <svg width="100%" height="50" viewBox="0 0 600 100">
+      <text x="50%" y="50%" dy=".35em">𝗔𝗞𝗘𝗟𝗔 𝗔𝗜 𝗨𝗟𝗧𝗥𝗔</text>
+    </svg>
+  </div>
+
+  <div class="glass">
+    <h2><i data-lucide="bar-chart-3" class="lucide"></i>Period & Totals</h2>
+    <div class="stats">
+      <div class="box"><div class="label">Current Period</div><div class="value" id="period">--</div></div>
+      <div class="box"><div class="label">Total Predictions</div><div class="value" id="totalBets">0</div></div>
+    </div>
+  </div>
+
+  <div class="glass">
+    <h2><i data-lucide="percent" class="lucide"></i>Winrate</h2>
+    <div class="stats">
+      <div class="box"><div class="label">Wins</div><div class="value green" id="bs_win">0</div></div>
+      <div class="box"><div class="label">Losses</div><div class="value red" id="bs_loss">0</div></div>
+      <div class="box"><div class="label">Winrate</div><div class="value" id="bs_rate">0%</div></div>
+    </div>
+  </div>
+
+  <div class="glass">
+    <h2><i data-lucide="zap" class="lucide"></i>Latest Prediction <i data-lucide="activity" class="lucide"></i></h2>
+    <div class="prediction">
+      <div class="box">
+        <div class="label">Big/Small</div><div class="value" id="bs_result">--</div>
+        <div class="label">Confidence</div>
+        <div class="confidence-bar"><div class="confidence-fill" id="confBar"></div></div>
+        <div class="pattern-info" id="patternInfo">Pattern Used: --</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass">
+    <h2><i data-lucide="history" class="lucide"></i>Prediction History</h2>
+    <div id="history"><div class="no-history" id="noHistory">No history yet</div></div>
+  </div>
+
+  <footer>© 2025 Smart Predictor</footer>
+  
+<script>
+const api = "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json";
+let lastIssue = null, totalBets = 0, bsWins = 0, bsLosses = 0, pendingPrediction = null;
+
+// === 7-digit patterns (added 2 more) ===
+const trendMap7 = {
+  'BBBBBBBB': 'S',
+  'SSSSSSSS': 'B',
+  'BBBBBBBS': 'S',
+  'SSSSSSSB': 'B',
+  'BBBBBBSB': 'S',
+  'SSSSSBSS': 'B',
+  'BBBBBSBB': 'S',
+  'BBBSBBBB': 'S',
+  'BSBBBBBB': 'B',
+  'SSBBSBSB': 'B',
+  'SBSBSBSB': 'B',
+  'SSBBSBSB': 'B',
+  'BBSBSBSB': 'B',
+  'SBSBSBSB': 'B',
+  'BSSBSSBS': 'S',
+  'SSBSSSSS': 'S',
+  'BBSSSSSS': 'S',
+  'SSBBBSBS': 'B',
+  'BSSBBBSB': 'S', // NEW 1
+  'SSBSSBBS': 'B'  // NEW 2
+};
+
+// === 6-digit patterns (added 7 more) ===
+const trendMap6 = {
+  'BBBBBB': 'B',
+  'SSSSSS': 'S',
+  'BBBSSB': 'S',
+  'SSBBSS': 'B',
+  'BBSBSB': 'B',
+  'SBBSBB': 'S',
+  'BSBSBS': 'S',
+  'SBSBSB': 'B',
+  'BBSSBB': 'S',
+  'SSBBSS': 'B',
+  'BSSBSS': 'S',
+  'SBBSSB': 'B',
+  'BBSSBS': 'B', // NEW 1
+  'SBSSBB': 'S', // NEW 2
+  'BSSBBB': 'S', // NEW 3
+  'SBBSBS': 'B', // NEW 4
+  'SSSBBS': 'B', // NEW 5
+  'BBBSSS': 'S', // NEW 6
+  'SBBBSB': 'B'  // NEW 7
+};
+
+// === 5-digit patterns (added 4 NEW) ===
+const trendMap5 = {
+  'BBSSB': 'S',
+  'SSBBS': 'B',
+  'BSBBS': 'S',
+  'SBSBB': 'B',
+  'BBBSS': 'S',
+  'SSSBB': 'B',
+  'SBSSB': 'B', // NEW 1
+  'BSSSB': 'S', // NEW 2
+  'SBBBS': 'B', // NEW 3
+  'SSBSS': 'S'  // NEW 4
+};
+
+function getType(num) {
+  return num >= 5 ? "B" : "S";
+}
+
+function updateStats() {
+  document.getElementById("totalBets").textContent = totalBets;
+  document.getElementById("bs_win").textContent = bsWins;
+  document.getElementById("bs_loss").textContent = bsLosses;
+  const rate = bsWins + bsLosses ? Math.round((bsWins / (bsWins + bsLosses)) * 100) : 0;
+  document.getElementById("bs_rate").textContent = rate + "%";
+}
+
+function showPredictionAfterDelay(prediction, usedPattern) {
+  const el = document.getElementById("bs_result");
+  el.textContent = "FETCHING";
+  document.getElementById("patternInfo").textContent = "Pattern Used: WAITING";
+  setTimeout(() => {
+    if (prediction.type === "SKIP") {
+      el.textContent = "SKIP";
+      document.getElementById("confBar").style.width = "0%";
+      document.getElementById("patternInfo").textContent = "No valid pattern found, skipping prediction";
+    } else {
+      el.textContent = prediction.type === "B" ? "BIG" : "SMALL";
+      document.getElementById("confBar").style.width = prediction.bsConf + "%";
+      document.getElementById("patternInfo").textContent = "Pattern Used: " + usedPattern;
+    }
+  }, 10000);
+}
+
+function updateHistory(issue, pred, actual) {
+  if (pred.type === "SKIP") return;
+  const actualType = getType(actual);
+  const win = pred.type === actualType;
+  if (document.getElementById("noHistory")) document.getElementById("noHistory").remove();
+  const item = document.createElement("div");
+  item.className = "history-item";
+  item.style.borderLeftColor = win ? "#2ecc71" : "#e74c3c";
+
+  const content = document.createElement("div");
+  content.className = "history-item-content";
+  content.innerHTML = `<strong>Period:</strong> ${issue}<br>Predicted: <span class="${win ? 'green' : 'red'}">${pred.type === "B" ? "BIG" : "SMALL"}</span><br>Actual: <span>${actual}</span> — <span class="${win ? 'green' : 'red'}">${actualType === "B" ? "BIG" : "SMALL"}</span>`;
+
+  const deleteIcon = document.createElement("i");
+  deleteIcon.className = "fas fa-trash delete-icon";
+  deleteIcon.title = "Delete";
+  deleteIcon.onclick = () => item.remove();
+
+  item.appendChild(content);
+  item.appendChild(deleteIcon);
+  document.getElementById("history").prepend(item);
+
+  if (document.getElementById("history").children.length > 30) {
+    document.getElementById("history").removeChild(document.getElementById("history").lastChild);
+  }
+
+  totalBets++;
+  win ? bsWins++ : bsLosses++;
+  updateStats();
+}
+
+async function fetchData() {
+  try {
+    const res = await fetch(api);
+    const json = await res.json();
+    const list = json.data.list;
+    const latest = list[0];
+    const actual = parseInt(latest.number);
+
+    if (latest.issueNumber !== lastIssue) {
+      if (pendingPrediction) updateHistory(latest.issueNumber, pendingPrediction, actual);
+
+      const bsSeq = list.slice(0, 50).map(x => getType(parseInt(x.number))).reverse();
+      const pattern7 = bsSeq.slice(-7).join('');
+      const pattern6 = bsSeq.slice(-6).join('');
+      const pattern5 = bsSeq.slice(-5).join('');
+
+      let prediction = { type: "SKIP", bsConf: 0 };
+      let usedPattern = "N/A";
+
+      if (trendMap7[pattern7]) {
+        prediction = { type: trendMap7[pattern7], bsConf: 90 };
+        usedPattern = "7D: " + pattern7;
+      } else if (trendMap6[pattern6]) {
+        prediction = { type: trendMap6[pattern6], bsConf: 80 };
+        usedPattern = "6D: " + pattern6;
+      } else if (trendMap5[pattern5]) {
+        prediction = { type: trendMap5[pattern5], bsConf: 70 };
+        usedPattern = "5D: " + pattern5;
+      }
+
+      pendingPrediction = prediction;
+      showPredictionAfterDelay(prediction, usedPattern);
+
+      lastIssue = latest.issueNumber;
+      const period = (parseInt(latest.issueNumber.slice(-4)) + 1).toString().padStart(4, '0');
+      document.getElementById("period").textContent = period;
+    }
+  } catch (e) {
+    console.error("Error fetching data:", e);
+  }
+}
+
+setInterval(fetchData, 5000);
+lucide.createIcons();
+</script>
+
+</body>
+</html>
